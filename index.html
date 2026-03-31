@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sports Scoreboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===================== MENU SCREEN ===================== -->
+  <div id="screen-menu" class="screen active">
+    <div class="menu-bg-overlay"></div>
+    <div class="menu-content">
+      <div class="menu-header">
+        <div class="menu-logo">🏆</div>
+        <h1 class="menu-title">Sports Scoreboard</h1>
+        <p class="menu-subtitle">Select a sport to begin</p>
+      </div>
+      <div class="sport-grid">
+        <button class="sport-card" data-sport="basketball">
+          <div class="sport-icon">🏀</div>
+          <div class="sport-name">Basketball</div>
+          <div class="sport-desc">Quarters · Shot clock · Timeouts</div>
+        </button>
+        <button class="sport-card" data-sport="tennis">
+          <div class="sport-icon">🎾</div>
+          <div class="sport-name">Tennis</div>
+          <div class="sport-desc">Sets · Games · Points · Serve</div>
+        </button>
+        <button class="sport-card" data-sport="icehockey">
+          <div class="sport-icon">🏒</div>
+          <div class="sport-name">Ice Hockey</div>
+          <div class="sport-desc">Periods · Shots · Penalties</div>
+        </button>
+        <button class="sport-card" data-sport="pingpong">
+          <div class="sport-icon">🏓</div>
+          <div class="sport-name">Ping Pong</div>
+          <div class="sport-desc">Sets · Serve alternation</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SETUP SCREEN ===================== -->
+  <div id="screen-setup" class="screen">
+    <div class="setup-wrapper">
+      <div class="setup-panel">
+        <div class="setup-top">
+          <button class="btn-back" id="btn-back-setup" aria-label="Back to menu">&#8592; Menu</button>
+          <div class="setup-sport-badge" id="setup-sport-badge"></div>
+        </div>
+        <h2 class="setup-title" id="setup-title">Game Setup</h2>
+
+        <!-- Teams section (basketball, ice hockey) -->
+        <div class="setup-section" id="setup-teams">
+          <h3 class="setup-section-title">Teams</h3>
+          <div class="setup-row">
+            <label class="setup-label" for="home-name">Home Team</label>
+            <input class="setup-input" id="home-name" type="text" placeholder="Home" maxlength="20" />
+          </div>
+          <div class="setup-row">
+            <label class="setup-label" for="away-name">Away Team</label>
+            <input class="setup-input" id="away-name" type="text" placeholder="Away" maxlength="20" />
+          </div>
+        </div>
+
+        <!-- Players section (tennis, ping pong) -->
+        <div class="setup-section" id="setup-players">
+          <h3 class="setup-section-title">Players</h3>
+          <div class="setup-row">
+            <label class="setup-label" for="player1-name">Player 1</label>
+            <input class="setup-input" id="player1-name" type="text" placeholder="Player 1" maxlength="20" />
+          </div>
+          <div class="setup-row">
+            <label class="setup-label" for="player2-name">Player 2</label>
+            <input class="setup-input" id="player2-name" type="text" placeholder="Player 2" maxlength="20" />
+          </div>
+        </div>
+
+        <!-- Basketball settings -->
+        <div class="setup-section" id="setup-basketball">
+          <h3 class="setup-section-title">Game Settings</h3>
+          <div class="setup-row">
+            <label class="setup-label" for="bball-period-len">Period Length (min)</label>
+            <select class="setup-select" id="bball-period-len">
+              <option value="8">8 min (Youth)</option>
+              <option value="10">10 min (FIBA)</option>
+              <option value="12" selected>12 min (NBA)</option>
+              <option value="15">15 min</option>
+              <option value="20">20 min (NCAA Half)</option>
+            </select>
+          </div>
+          <div class="setup-row">
+            <label class="setup-label" for="bball-shotclock">Shot Clock</label>
+            <select class="setup-select" id="bball-shotclock">
+              <option value="24" selected>24 sec (NBA)</option>
+              <option value="30">30 sec (NCAA)</option>
+              <option value="35">35 sec</option>
+              <option value="0">Off</option>
+            </select>
+          </div>
+          <div class="setup-row">
+            <label class="setup-label" for="bball-fouls">Fouls to Foul Out</label>
+            <select class="setup-select" id="bball-fouls">
+              <option value="5" selected>5 (FIBA/NCAA)</option>
+              <option value="6">6 (NBA)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tennis settings -->
+        <div class="setup-section" id="setup-tennis">
+          <h3 class="setup-section-title">Match Settings</h3>
+          <div class="setup-row">
+            <label class="setup-label" for="tennis-bestof">Best Of</label>
+            <select class="setup-select" id="tennis-bestof">
+              <option value="3" selected>Best of 3 Sets</option>
+              <option value="5">Best of 5 Sets</option>
+            </select>
+          </div>
+          <div class="setup-row">
+            <label class="setup-label" for="tennis-tiebreak">Final Set Tiebreak</label>
+            <select class="setup-select" id="tennis-tiebreak">
+              <option value="7" selected>Tiebreak to 7</option>
+              <option value="10">Match Tiebreak to 10</option>
+              <option value="0">Advantage Set (no tiebreak)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ice Hockey settings -->
+        <div class="setup-section" id="setup-icehockey">
+          <h3 class="setup-section-title">Game Settings</h3>
+          <div class="setup-row">
+            <label class="setup-label" for="hockey-period-len">Period Length (min)</label>
+            <select class="setup-select" id="hockey-period-len">
+              <option value="15">15 min</option>
+              <option value="20" selected>20 min (Standard)</option>
+              <option value="12">12 min</option>
+            </select>
+          </div>
+          <div class="setup-row">
+            <label class="setup-label" for="hockey-ot-len">Overtime Length (min)</label>
+            <select class="setup-select" id="hockey-ot-len">
+              <option value="5" selected>5 min</option>
+              <option value="10">10 min</option>
+              <option value="20">20 min (Full period)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ping Pong settings -->
+        <div class="setup-section" id="setup-pingpong">
+          <h3 class="setup-section-title">Match Settings</h3>
+          <div class="setup-row">
+            <label class="setup-label" for="pp-points">Points to Win a Game</label>
+            <select class="setup-select" id="pp-points">
+              <option value="11" selected>11 (Standard)</option>
+              <option value="21">21 (Traditional)</option>
+            </select>
+          </div>
+          <div class="setup-row">
+            <label class="setup-label" for="pp-bestof">Best Of</label>
+            <select class="setup-select" id="pp-bestof">
+              <option value="3">Best of 3</option>
+              <option value="5" selected>Best of 5</option>
+              <option value="7">Best of 7</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-start" id="btn-start">Start Game &#8250;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCOREBOARD SCREEN ===================== -->
+  <div id="screen-scoreboard" class="screen">
+
+    <!-- ---- Main Display ---- -->
+    <div class="sb-display" id="sb-display">
+
+      <!-- Sport badge top-center -->
+      <div class="sb-sport-label" id="sb-sport-label"></div>
+
+      <!-- Period / Set / Quarter indicator -->
+      <div class="sb-period-row">
+        <div class="sb-period-label" id="sb-period-label"></div>
+        <div class="sb-clock" id="sb-clock">--:--</div>
+        <div class="sb-shotclock-wrap" id="sb-shotclock-wrap">
+          <span class="sb-shotclock-label">SHOT</span>
+          <span class="sb-shotclock" id="sb-shotclock">24</span>
+        </div>
+      </div>
+
+      <!-- Main score row -->
+      <div class="sb-score-row">
+
+        <!-- Home / Player 1 -->
+        <div class="sb-team home-team">
+          <div class="sb-team-name" id="sb-home-name">HOME</div>
+          <div class="sb-score" id="sb-home-score">0</div>
+          <div class="sb-team-stats" id="sb-home-stats"></div>
+        </div>
+
+        <!-- Center divider -->
+        <div class="sb-divider">
+          <div class="sb-vs">VS</div>
+          <div class="sb-extra-info" id="sb-extra-info"></div>
+        </div>
+
+        <!-- Away / Player 2 -->
+        <div class="sb-team away-team">
+          <div class="sb-team-name" id="sb-away-name">AWAY</div>
+          <div class="sb-score" id="sb-away-score">0</div>
+          <div class="sb-team-stats" id="sb-away-stats"></div>
+        </div>
+
+      </div>
+
+      <!-- Tennis sub-scores (sets, games, points) -->
+      <div class="sb-tennis-table" id="sb-tennis-table" style="display:none">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th id="th-set1">Set 1</th>
+              <th id="th-set2">Set 2</th>
+              <th id="th-set3">Set 3</th>
+              <th id="th-set4" style="display:none">Set 4</th>
+              <th id="th-set5" style="display:none">Set 5</th>
+              <th class="th-current">Game</th>
+              <th class="th-current">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="tennis-row-p1">
+              <td class="tennis-player-name" id="tennis-p1-name"></td>
+              <td id="t-p1-s1">-</td><td id="t-p1-s2">-</td><td id="t-p1-s3">-</td>
+              <td id="t-p1-s4" style="display:none">-</td><td id="t-p1-s5" style="display:none">-</td>
+              <td class="td-current" id="t-p1-games">0</td>
+              <td class="td-current" id="t-p1-points">0</td>
+            </tr>
+            <tr id="tennis-row-p2">
+              <td class="tennis-player-name" id="tennis-p2-name"></td>
+              <td id="t-p2-s1">-</td><td id="t-p2-s2">-</td><td id="t-p2-s3">-</td>
+              <td id="t-p2-s4" style="display:none">-</td><td id="t-p2-s5" style="display:none">-</td>
+              <td class="td-current" id="t-p2-games">0</td>
+              <td class="td-current" id="t-p2-points">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Ping pong sets row -->
+      <div class="sb-pp-sets" id="sb-pp-sets" style="display:none"></div>
+
+    </div><!-- end sb-display -->
+
+    <!-- ---- Control Panel ---- -->
+    <div class="control-panel" id="control-panel">
+      <div class="cp-toggle-row">
+        <button class="cp-btn-icon" id="btn-toggle-controls" title="Hide/show controls">☰ Controls</button>
+        <button class="cp-btn-icon" id="btn-fullscreen" title="Toggle fullscreen">⛶ Fullscreen</button>
+        <button class="cp-btn-icon" id="btn-back-game" title="Back to menu">✕ End Game</button>
+      </div>
+
+      <div class="cp-body" id="cp-body">
+        <!-- Score controls -->
+        <div class="cp-section" id="cp-score-section">
+          <h3 class="cp-section-title">Score</h3>
+          <div class="cp-score-row">
+            <div class="cp-team-col">
+              <div class="cp-col-label" id="cp-home-label">HOME</div>
+              <div class="cp-btn-row" id="cp-home-score-btns"></div>
+            </div>
+            <div class="cp-divider-col"></div>
+            <div class="cp-team-col">
+              <div class="cp-col-label" id="cp-away-label">AWAY</div>
+              <div class="cp-btn-row" id="cp-away-score-btns"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timer controls (basketball, ice hockey) -->
+        <div class="cp-section" id="cp-timer-section">
+          <h3 class="cp-section-title">Clock</h3>
+          <div class="cp-btn-row centered">
+            <button class="cp-btn green" id="btn-timer-start">▶ Start</button>
+            <button class="cp-btn yellow" id="btn-timer-pause">⏸ Pause</button>
+            <button class="cp-btn gray" id="btn-timer-reset">↺ Reset</button>
+          </div>
+          <div class="cp-btn-row centered" id="cp-shotclock-row">
+            <button class="cp-btn gray small" id="btn-sc-reset">Reset Shot Clock</button>
+          </div>
+        </div>
+
+        <!-- Period / Set controls -->
+        <div class="cp-section" id="cp-period-section">
+          <h3 class="cp-section-title" id="cp-period-title">Period</h3>
+          <div class="cp-btn-row centered">
+            <button class="cp-btn blue" id="btn-next-period">Next Period ▶</button>
+          </div>
+        </div>
+
+        <!-- Basketball extras -->
+        <div class="cp-section" id="cp-bball-extras">
+          <h3 class="cp-section-title">Fouls &amp; Timeouts</h3>
+          <div class="cp-score-row">
+            <div class="cp-team-col">
+              <div class="cp-btn-row">
+                <button class="cp-btn orange small" id="btn-home-foul">+ Foul</button>
+                <button class="cp-btn gray small" id="btn-home-timeout-full">Full TO</button>
+                <button class="cp-btn gray small" id="btn-home-timeout-20">20s TO</button>
+              </div>
+            </div>
+            <div class="cp-divider-col"></div>
+            <div class="cp-team-col">
+              <div class="cp-btn-row">
+                <button class="cp-btn orange small" id="btn-away-foul">+ Foul</button>
+                <button class="cp-btn gray small" id="btn-away-timeout-full">Full TO</button>
+                <button class="cp-btn gray small" id="btn-away-timeout-20">20s TO</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ice Hockey extras -->
+        <div class="cp-section" id="cp-hockey-extras">
+          <h3 class="cp-section-title">Penalties &amp; Shots</h3>
+          <div class="cp-score-row">
+            <div class="cp-team-col">
+              <div class="cp-btn-row">
+                <button class="cp-btn red small" id="btn-home-minor">Minor (2 min)</button>
+                <button class="cp-btn red small" id="btn-home-major">Major (5 min)</button>
+                <button class="cp-btn blue small" id="btn-home-shot">+ Shot</button>
+              </div>
+            </div>
+            <div class="cp-divider-col"></div>
+            <div class="cp-team-col">
+              <div class="cp-btn-row">
+                <button class="cp-btn red small" id="btn-away-minor">Minor (2 min)</button>
+                <button class="cp-btn red small" id="btn-away-major">Major (5 min)</button>
+                <button class="cp-btn blue small" id="btn-away-shot">+ Shot</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Undo & Reset row -->
+        <div class="cp-section">
+          <div class="cp-btn-row centered">
+            <button class="cp-btn red" id="btn-undo">↩ Undo Last</button>
+            <button class="cp-btn gray" id="btn-reset-game">↺ Reset Game</button>
+          </div>
+        </div>
+
+      </div><!-- end cp-body -->
+    </div><!-- end control-panel -->
+
+    <!-- Winner overlay -->
+    <div class="winner-overlay" id="winner-overlay" style="display:none">
+      <div class="winner-box">
+        <div class="winner-trophy">🏆</div>
+        <div class="winner-label" id="winner-label"></div>
+        <button class="btn-start" id="btn-new-game">New Game</button>
+      </div>
+    </div>
+
+  </div><!-- end screen-scoreboard -->
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,756 @@
+/* ========================================================
+   Sports Scoreboard – Global Styles
+   ======================================================== */
+
+:root {
+  --bg:          #0d0f14;
+  --bg2:         #161a24;
+  --bg3:         #1e2333;
+  --border:      #2a3050;
+  --text:        #e8eaf6;
+  --text-dim:    #8892b0;
+  --accent:      #4fc3f7;
+
+  /* sport themes */
+  --bball-primary: #ff6f00;
+  --bball-glow:    #ffab40;
+  --tennis-primary:#66bb6a;
+  --tennis-glow:   #a5d6a7;
+  --hockey-primary:#42a5f5;
+  --hockey-glow:   #90caf9;
+  --pp-primary:    #ef5350;
+  --pp-glow:       #ef9a9a;
+
+  --score-font: 'Courier New', Courier, monospace;
+  --ui-font: system-ui, -apple-system, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--ui-font);
+  overflow: hidden;
+}
+
+/* ========================================================
+   Screen management
+   ======================================================== */
+.screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+}
+.screen.active { display: flex; flex-direction: column; }
+
+/* ========================================================
+   MENU SCREEN
+   ======================================================== */
+#screen-menu {
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 0%, #1a2044 0%, var(--bg) 70%);
+}
+
+.menu-bg-overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(79,195,247,.07) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(102,187,106,.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.menu-content { position: relative; z-index: 1; width: 100%; max-width: 900px; padding: 2rem 1.5rem; }
+
+.menu-header { text-align: center; margin-bottom: 3rem; }
+
+.menu-logo {
+  font-size: 4rem;
+  line-height: 1;
+  margin-bottom: .75rem;
+  filter: drop-shadow(0 0 20px rgba(255,255,255,.3));
+}
+
+.menu-title {
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  font-weight: 800;
+  letter-spacing: .04em;
+  background: linear-gradient(135deg, #e8eaf6 30%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.menu-subtitle {
+  margin-top: .5rem;
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.sport-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 520px) {
+  .sport-grid { grid-template-columns: 1fr; }
+}
+
+.sport-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  cursor: pointer;
+  text-align: center;
+  transition: transform .2s, border-color .2s, box-shadow .2s, background .2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.sport-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .25s;
+  border-radius: inherit;
+}
+
+.sport-card[data-sport="basketball"]::before { background: radial-gradient(ellipse at 50% 0%, rgba(255,111,0,.15), transparent 65%); }
+.sport-card[data-sport="tennis"]::before      { background: radial-gradient(ellipse at 50% 0%, rgba(102,187,106,.15), transparent 65%); }
+.sport-card[data-sport="icehockey"]::before   { background: radial-gradient(ellipse at 50% 0%, rgba(66,165,245,.15), transparent 65%); }
+.sport-card[data-sport="pingpong"]::before    { background: radial-gradient(ellipse at 50% 0%, rgba(239,83,80,.15), transparent 65%); }
+
+.sport-card:hover::before { opacity: 1; }
+
+.sport-card[data-sport="basketball"]:hover { border-color: var(--bball-primary); box-shadow: 0 0 24px rgba(255,111,0,.25); transform: translateY(-4px); }
+.sport-card[data-sport="tennis"]:hover      { border-color: var(--tennis-primary); box-shadow: 0 0 24px rgba(102,187,106,.25); transform: translateY(-4px); }
+.sport-card[data-sport="icehockey"]:hover   { border-color: var(--hockey-primary); box-shadow: 0 0 24px rgba(66,165,245,.25); transform: translateY(-4px); }
+.sport-card[data-sport="pingpong"]:hover    { border-color: var(--pp-primary); box-shadow: 0 0 24px rgba(239,83,80,.25); transform: translateY(-4px); }
+
+.sport-icon {
+  font-size: 3.5rem;
+  line-height: 1;
+  margin-bottom: .75rem;
+  display: block;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.5));
+}
+
+.sport-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  color: var(--text);
+  margin-bottom: .35rem;
+}
+
+.sport-desc {
+  font-size: .8rem;
+  color: var(--text-dim);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+/* ========================================================
+   SETUP SCREEN
+   ======================================================== */
+#screen-setup {
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2rem 1rem 4rem;
+  overflow-y: auto;
+}
+
+/* sport-specific background tint */
+#screen-setup.sport-basketball { background: radial-gradient(ellipse at 50% 0%, rgba(255,111,0,.08) 0%, var(--bg) 60%); }
+#screen-setup.sport-tennis     { background: radial-gradient(ellipse at 50% 0%, rgba(102,187,106,.08) 0%, var(--bg) 60%); }
+#screen-setup.sport-icehockey  { background: radial-gradient(ellipse at 50% 0%, rgba(66,165,245,.08) 0%, var(--bg) 60%); }
+#screen-setup.sport-pingpong   { background: radial-gradient(ellipse at 50% 0%, rgba(239,83,80,.08) 0%, var(--bg) 60%); }
+
+.setup-wrapper { width: 100%; max-width: 540px; margin: 0 auto; }
+
+.setup-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem 2rem 2.5rem;
+}
+
+.setup-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.btn-back {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 8px;
+  padding: .4rem .9rem;
+  cursor: pointer;
+  font-size: .875rem;
+  transition: color .2s, border-color .2s;
+}
+.btn-back:hover { color: var(--text); border-color: var(--accent); }
+
+.setup-sport-badge {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.setup-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1.75rem;
+}
+
+.setup-section {
+  margin-bottom: 1.75rem;
+}
+
+.setup-section-title {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.setup-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: .75rem;
+}
+
+.setup-label {
+  font-size: .9rem;
+  color: var(--text-dim);
+  flex: 0 0 auto;
+  min-width: 140px;
+}
+
+.setup-input,
+.setup-select {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: .95rem;
+  padding: .5rem .75rem;
+  outline: none;
+  transition: border-color .2s;
+  min-width: 0;
+}
+
+.setup-input:focus,
+.setup-select:focus { border-color: var(--accent); }
+
+.setup-select option { background: var(--bg3); }
+
+.btn-start {
+  display: block;
+  width: 100%;
+  padding: .9rem;
+  margin-top: 2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, filter .15s;
+}
+.btn-start:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.btn-start:active { transform: translateY(0); }
+
+/* sport-colored start button */
+.sport-basketball .btn-start { background: linear-gradient(135deg, var(--bball-primary), var(--bball-glow)); color: #fff; box-shadow: 0 4px 20px rgba(255,111,0,.4); }
+.sport-tennis .btn-start     { background: linear-gradient(135deg, var(--tennis-primary), var(--tennis-glow)); color: #fff; box-shadow: 0 4px 20px rgba(102,187,106,.4); }
+.sport-icehockey .btn-start  { background: linear-gradient(135deg, var(--hockey-primary), var(--hockey-glow)); color: #fff; box-shadow: 0 4px 20px rgba(66,165,245,.4); }
+.sport-pingpong .btn-start   { background: linear-gradient(135deg, var(--pp-primary), var(--pp-glow)); color: #fff; box-shadow: 0 4px 20px rgba(239,83,80,.4); }
+
+/* ========================================================
+   SCOREBOARD SCREEN
+   ======================================================== */
+#screen-scoreboard {
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---- Main Display ---- */
+.sb-display {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem .5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* sport theme gradients on scoreboard */
+.sb-display.sport-basketball { background: radial-gradient(ellipse at 50% -10%, rgba(255,111,0,.18) 0%, var(--bg) 55%); }
+.sb-display.sport-tennis     { background: radial-gradient(ellipse at 50% -10%, rgba(102,187,106,.18) 0%, var(--bg) 55%); }
+.sb-display.sport-icehockey  { background: radial-gradient(ellipse at 50% -10%, rgba(66,165,245,.18) 0%, var(--bg) 55%); }
+.sb-display.sport-pingpong   { background: radial-gradient(ellipse at 50% -10%, rgba(239,83,80,.18) 0%, var(--bg) 55%); }
+
+.sb-sport-label {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: .25rem .9rem;
+}
+
+.sb-period-row {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.sb-period-label {
+  font-size: clamp(.9rem, 2.5vw, 1.4rem);
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  min-width: 5ch;
+  text-align: center;
+}
+
+.sb-clock {
+  font-family: var(--score-font);
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 900;
+  letter-spacing: .05em;
+  color: var(--text);
+  text-shadow: 0 0 30px rgba(255,255,255,.2);
+  min-width: 6ch;
+  text-align: center;
+}
+
+.sb-clock.running { color: #69f0ae; text-shadow: 0 0 20px rgba(105,240,174,.4); }
+.sb-clock.warning { color: #ffca28; text-shadow: 0 0 20px rgba(255,202,40,.4); }
+.sb-clock.critical { color: #ff5252; text-shadow: 0 0 20px rgba(255,82,82,.5); animation: pulse-clock .5s ease-in-out infinite; }
+
+@keyframes pulse-clock {
+  0%,100% { opacity: 1; }
+  50%      { opacity: .6; }
+}
+
+.sb-shotclock-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .15rem;
+}
+.sb-shotclock-label {
+  font-size: .55rem;
+  letter-spacing: .12em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.sb-shotclock {
+  font-family: var(--score-font);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 900;
+  min-width: 3ch;
+  text-align: center;
+}
+.sb-shotclock.sc-warning { color: #ffca28; }
+.sb-shotclock.sc-critical { color: #ff5252; animation: pulse-clock .4s ease-in-out infinite; }
+
+/* Score row */
+.sb-score-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  max-width: 960px;
+  gap: .5rem;
+}
+
+.sb-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+}
+
+.sb-team-name {
+  font-size: clamp(1rem, 3vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.home-team .sb-team-name { color: #fff; }
+.away-team .sb-team-name { color: var(--text-dim); }
+
+.sb-score {
+  font-family: var(--score-font);
+  font-size: clamp(4rem, 14vw, 10rem);
+  font-weight: 900;
+  line-height: .9;
+  text-align: center;
+  text-shadow: 0 4px 30px rgba(0,0,0,.5);
+}
+
+.home-team .sb-score { color: #fff; text-shadow: 0 0 40px rgba(255,255,255,.15); }
+.away-team .sb-score { color: var(--text-dim); }
+
+/* sport-colored home score */
+.sport-basketball .home-team .sb-score { text-shadow: 0 0 40px rgba(255,111,0,.3); }
+.sport-tennis .home-team .sb-score     { text-shadow: 0 0 40px rgba(102,187,106,.3); }
+.sport-icehockey .home-team .sb-score  { text-shadow: 0 0 40px rgba(66,165,245,.3); }
+.sport-pingpong .home-team .sb-score   { text-shadow: 0 0 40px rgba(239,83,80,.3); }
+
+.sb-team-stats {
+  font-size: clamp(.65rem, 1.5vw, .85rem);
+  color: var(--text-dim);
+  text-align: center;
+  letter-spacing: .04em;
+  min-height: 1.5em;
+}
+
+.sb-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  padding: 0 1rem;
+}
+
+.sb-vs {
+  font-size: clamp(.7rem, 2vw, 1rem);
+  font-weight: 700;
+  letter-spacing: .2em;
+  color: var(--border);
+}
+
+.sb-extra-info {
+  font-size: clamp(.65rem, 1.5vw, .85rem);
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* ---- Tennis Table ---- */
+.sb-tennis-table {
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 700px;
+}
+
+.sb-tennis-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255,255,255,.04);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.sb-tennis-table th,
+.sb-tennis-table td {
+  padding: .5rem .75rem;
+  text-align: center;
+  font-size: clamp(.75rem, 1.8vw, .95rem);
+  border-bottom: 1px solid var(--border);
+}
+
+.sb-tennis-table th {
+  background: rgba(255,255,255,.07);
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-size: .7rem;
+}
+
+.sb-tennis-table tbody tr:last-child td { border-bottom: none; }
+
+.tennis-player-name { text-align: left !important; font-weight: 700; }
+
+.th-current,
+.td-current {
+  background: rgba(255,255,255,.06) !important;
+  font-weight: 800;
+  color: var(--text) !important;
+}
+
+.sb-tennis-table .serve-indicator::before {
+  content: '● ';
+  color: #ffd740;
+}
+
+/* Ping Pong sets */
+.sb-pp-sets {
+  display: flex;
+  gap: .75rem;
+  justify-content: center;
+  margin-top: .75rem;
+  flex-wrap: wrap;
+}
+
+.pp-set-badge {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .3rem .75rem;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: var(--text-dim);
+}
+
+.pp-set-badge.won-p1 { border-color: var(--pp-primary); color: var(--text); }
+.pp-set-badge.won-p2 { border-color: var(--pp-glow); color: var(--text); }
+.pp-set-badge.current-set { background: rgba(239,83,80,.12); border-color: var(--pp-primary); }
+
+/* ---- Control Panel ---- */
+.control-panel {
+  flex: 0 0 auto;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: .5rem .75rem .75rem;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.control-panel.collapsed .cp-body { display: none; }
+
+.cp-toggle-row {
+  display: flex;
+  gap: .5rem;
+  justify-content: center;
+  margin-bottom: .5rem;
+}
+
+.cp-btn-icon {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 8px;
+  padding: .3rem .7rem;
+  font-size: .8rem;
+  cursor: pointer;
+  transition: color .2s, border-color .2s;
+}
+.cp-btn-icon:hover { color: var(--text); border-color: var(--accent); }
+
+.cp-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: .75rem;
+}
+
+.cp-section {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: .75rem;
+}
+
+.cp-section-title {
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--text-dim);
+  margin-bottom: .6rem;
+}
+
+.cp-score-row {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: .5rem;
+  align-items: start;
+}
+
+.cp-divider-col {
+  background: var(--border);
+  align-self: stretch;
+  margin-top: 1.5rem;
+}
+
+.cp-team-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+}
+
+.cp-col-label {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text-dim);
+}
+
+.cp-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  justify-content: center;
+}
+
+.cp-btn-row.centered { justify-content: center; }
+
+.cp-btn {
+  border: none;
+  border-radius: 8px;
+  padding: .45rem .85rem;
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .12s, filter .15s;
+  white-space: nowrap;
+}
+.cp-btn.small { padding: .35rem .6rem; font-size: .75rem; }
+.cp-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+.cp-btn:active { transform: translateY(0); filter: brightness(.95); }
+
+.cp-btn.green  { background: #2e7d32; color: #fff; }
+.cp-btn.yellow { background: #f57f17; color: #fff; }
+.cp-btn.gray   { background: var(--bg); border: 1px solid var(--border); color: var(--text-dim); }
+.cp-btn.gray:hover { color: var(--text); }
+.cp-btn.blue   { background: #1565c0; color: #fff; }
+.cp-btn.orange { background: var(--bball-primary); color: #fff; }
+.cp-btn.red    { background: #c62828; color: #fff; }
+
+/* ---- Winner Overlay ---- */
+.winner-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn .4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.winner-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 3rem 4rem;
+  text-align: center;
+  animation: slideUp .4s cubic-bezier(.2,.8,.4,1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+.winner-trophy {
+  font-size: 5rem;
+  line-height: 1;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 30px rgba(255,215,0,.6));
+  animation: bounce .8s ease-in-out infinite alternate;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-10px); }
+}
+
+.winner-label {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: .04em;
+  margin-bottom: 2rem;
+  color: #ffd740;
+}
+
+/* ========================================================
+   Serve indicator (tennis / ping pong)
+   ======================================================== */
+.serve-dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #ffd740;
+  box-shadow: 0 0 10px #ffd740;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* ========================================================
+   Score change flash animation
+   ======================================================== */
+@keyframes score-flash {
+  0%   { transform: scale(1.3); }
+  60%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.score-flash { animation: score-flash .35s cubic-bezier(.2,.8,.4,1); }
+
+/* ========================================================
+   Fullscreen adjustments
+   ======================================================== */
+:fullscreen #screen-scoreboard,
+:-webkit-full-screen #screen-scoreboard {
+  background: var(--bg);
+}
+
+:fullscreen .sb-display,
+:-webkit-full-screen .sb-display {
+  height: 100vh;
+}
+
+/* ========================================================
+   Scrollbar
+   ======================================================== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ========================================================
+   Responsive tweaks
+   ======================================================== */
+@media (max-width: 600px) {
+  .sb-period-row { gap: 1rem; }
+  .sb-divider { padding: 0 .25rem; }
+  .setup-panel { padding: 1.25rem 1.25rem 2rem; }
+  .cp-body { grid-template-columns: 1fr; }
+  .setup-row { flex-direction: column; align-items: flex-start; }
+  .setup-label { min-width: 0; }
+  .setup-input, .setup-select { width: 100%; }
+}
