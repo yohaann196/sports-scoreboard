@@ -4,7 +4,1026 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sports Scoreboard</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Oswald:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+/* beige scoreboard thing */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  background: #ddd3b4;
+  color: #0f0f0a;
+  font-family: 'Barlow Condensed', sans-serif;
+  overflow: hidden;
+}
+
+/* grain on everything */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .32;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E");
+}
+
+.screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+}
+.screen.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- menu ---- */
+
+#screen-menu {
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse 120% 60% at 50% 50%, #f0e8d0 0%, #ddd3b4 80%);
+  position: relative;
+  overflow: hidden;
+}
+
+#screen-menu::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,.04) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+}
+
+.menu-bg-overlay { display: none; }
+
+.menu-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 860px;
+  padding: 2rem 1.5rem;
+}
+
+.menu-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.menu-logo { display: none; }
+
+.menu-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  display: inline-block;
+  padding: .6rem 3rem;
+  background: #0f0f0a;
+  color: #f0e8d0;
+  -webkit-text-fill-color: #f0e8d0;
+  border-radius: 2px;
+  box-shadow: 0 4px 0 rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4);
+  position: relative;
+}
+
+/* little rivets */
+.menu-title::before,
+.menu-title::after {
+  content: '●  ●';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: .5rem;
+  letter-spacing: .6rem;
+  color: #4a4535;
+  opacity: .55;
+}
+.menu-title::before { left: .6rem; }
+.menu-title::after { right: .6rem; }
+
+.menu-subtitle {
+  margin-top: 1.2rem;
+  font-size: .85rem;
+  font-weight: 700;
+  color: #4a4535;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+}
+
+.sport-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .875rem;
+}
+
+@media (max-width: 520px) {
+  .sport-grid { grid-template-columns: 1fr; }
+}
+
+.sport-card {
+  background: #0f0f0a;
+  border: 3px solid #0f0f0a;
+  border-radius: 3px;
+  padding: 1.75rem 1.5rem 1.5rem;
+  cursor: pointer;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 0 rgba(0,0,0,.35);
+  transition: transform .2s cubic-bezier(.2,.8,.4,1), box-shadow .2s;
+}
+
+.sport-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+}
+.sport-card[data-sport="basketball"]::before { background: #c84400; }
+.sport-card[data-sport="tennis"]::before { background: #2d7a3a; }
+.sport-card[data-sport="icehockey"]::before { background: #1a4d7a; }
+.sport-card[data-sport="pingpong"]::before { background: #8a1a1a; }
+
+.sport-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 0 rgba(0,0,0,.35), 0 12px 20px rgba(0,0,0,.3);
+}
+.sport-card:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 rgba(0,0,0,.35);
+}
+
+.sport-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-bottom: .6rem;
+  display: block;
+}
+
+.sport-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #f0e8d0;
+  margin-bottom: .3rem;
+}
+
+.sport-desc {
+  font-size: .72rem;
+  font-weight: 600;
+  color: rgba(232,223,200,.38);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+
+/* ---- setup ---- */
+
+#screen-setup {
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2rem 1rem 4rem;
+  overflow-y: auto;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, #f0e8d0 0%, #ddd3b4 70%);
+}
+
+.setup-wrapper {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.setup-panel {
+  background: #e8dfc8;
+  border: 3px solid #1a1a14;
+  border-radius: 3px;
+  padding: 2rem;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4), 0 2px 4px rgba(0,0,0,.3);
+}
+
+.setup-panel::before {
+  content: '';
+  position: absolute;
+  top: -3px; left: -3px; right: -3px;
+  height: 5px;
+  border-radius: 3px 3px 0 0;
+}
+.sport-basketball .setup-panel::before { background: #c84400; }
+.sport-tennis .setup-panel::before { background: #2d7a3a; }
+.sport-icehockey .setup-panel::before { background: #1a4d7a; }
+.sport-pingpong .setup-panel::before { background: #8a1a1a; }
+
+.setup-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.btn-back {
+  background: transparent;
+  border: 2px solid #4a4535;
+  color: #4a4535;
+  border-radius: 2px;
+  padding: .35rem .85rem;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .85rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  transition: all .15s;
+}
+.btn-back:hover {
+  background: #0f0f0a;
+  border-color: #0f0f0a;
+  color: #f0e8d0;
+}
+
+.setup-sport-badge {
+  width: 42px;
+  height: 42px;
+  background: #0f0f0a;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 3px 0 rgba(0,0,0,.4);
+}
+
+.setup-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  color: #0f0f0a;
+  border-bottom: 3px solid #0f0f0a;
+  padding-bottom: .6rem;
+}
+
+.setup-section { margin-bottom: 1.5rem; }
+
+.setup-section-title {
+  font-size: .65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .2em;
+  color: #4a4535;
+  margin-bottom: .75rem;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid #c8bb96;
+}
+
+.setup-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: .55rem;
+}
+
+.setup-label {
+  font-size: .9rem;
+  font-weight: 600;
+  color: #1e1e14;
+  flex: 0 0 auto;
+  min-width: 140px;
+}
+
+.setup-input,
+.setup-select {
+  flex: 1;
+  background: #f0e8d0;
+  border: 2px solid #3d3d2e;
+  border-radius: 2px;
+  color: #0f0f0a;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: .45rem .7rem;
+  outline: none;
+  min-width: 0;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.15);
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color .15s;
+}
+
+.setup-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a4535'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .75rem center;
+  padding-right: 2rem;
+}
+
+.setup-input:focus,
+.setup-select:focus {
+  border-color: #0f0f0a;
+  outline: none;
+}
+
+.setup-select option {
+  background: #f0e8d0;
+  color: #0f0f0a;
+}
+
+.btn-start {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  margin-top: 1.75rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  border: 3px solid transparent;
+  border-radius: 2px;
+  cursor: pointer;
+  background: #0f0f0a;
+  color: #f0e8d0;
+  transition: transform .12s, box-shadow .12s;
+  position: relative;
+}
+.btn-start::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.07) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.sport-basketball .btn-start {
+  border-color: #c84400;
+  box-shadow: 0 4px 0 #c84400, 0 8px 24px rgba(0,0,0,.4);
+}
+.sport-tennis .btn-start {
+  border-color: #2d7a3a;
+  box-shadow: 0 4px 0 #2d7a3a, 0 8px 24px rgba(0,0,0,.4);
+}
+.sport-icehockey .btn-start {
+  border-color: #1a4d7a;
+  box-shadow: 0 4px 0 #1a4d7a, 0 8px 24px rgba(0,0,0,.4);
+}
+.sport-pingpong .btn-start {
+  border-color: #8a1a1a;
+  box-shadow: 0 4px 0 #8a1a1a, 0 8px 24px rgba(0,0,0,.4);
+}
+
+.btn-start:hover { transform: translateY(-2px); filter: brightness(1.08); }
+.btn-start:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0,0,0,.4) !important;
+}
+
+
+/* ---- scoreboard screen ---- */
+
+#screen-scoreboard {
+  flex-direction: column;
+  overflow: hidden;
+  background: radial-gradient(ellipse 100% 80% at 50% 50%, #f0e8d0 0%, #ddd3b4 100%);
+}
+
+.sb-display {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.sb-display::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,.035) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+.sb-display.sport-basketball { background: radial-gradient(ellipse 100% 70% at 50% 10%, #ffe8d6 0%, #ddd3b4 70%); }
+.sb-display.sport-tennis     { background: radial-gradient(ellipse 100% 70% at 50% 10%, #d6edd8 0%, #ddd3b4 70%); }
+.sb-display.sport-icehockey  { background: radial-gradient(ellipse 100% 70% at 50% 10%, #d6e8f5 0%, #ddd3b4 70%); }
+.sb-display.sport-pingpong   { background: radial-gradient(ellipse 100% 70% at 50% 10%, #f5d6d6 0%, #ddd3b4 70%); }
+
+.sb-sport-label {
+  position: absolute;
+  top: .8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: #f0e8d0;
+  background: #0f0f0a;
+  border-radius: 2px;
+  padding: .2rem 1rem;
+  white-space: nowrap;
+  box-shadow: 0 2px 0 rgba(0,0,0,.3);
+  z-index: 1;
+}
+
+.sb-period-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+  background: #0f0f0a;
+  border: 3px solid #0f0f0a;
+  border-radius: 3px;
+  box-shadow: 0 4px 0 rgba(0,0,0,.35);
+  overflow: hidden;
+}
+
+.sb-period-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(.9rem, 2.5vw, 1.2rem);
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #e8dfc8;
+  padding: .4rem 1rem;
+  min-width: 5ch;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 2px solid rgba(255,255,255,.1);
+}
+
+.sb-clock {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(2rem, 6vw, 4rem);
+  color: #f0e8d0;
+  padding: .2rem 1.2rem;
+  min-width: 7ch;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sb-clock.running { color: #9affd0; }
+.sb-clock.warning { color: #ffd966; }
+.sb-clock.critical {
+  color: #ff7755;
+  animation: blink .55s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .55; }
+}
+
+.sb-shotclock-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .1rem;
+  padding: .3rem .75rem;
+  border-left: 2px solid rgba(255,255,255,.1);
+}
+
+.sb-shotclock-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .5rem;
+  font-weight: 800;
+  letter-spacing: .15em;
+  color: rgba(232,223,200,.35);
+  text-transform: uppercase;
+}
+
+.sb-shotclock {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(1.2rem, 3vw, 1.9rem);
+  color: #e8dfc8;
+  min-width: 3ch;
+  text-align: center;
+}
+.sb-shotclock.sc-warning { color: #ffd966; }
+.sb-shotclock.sc-critical {
+  color: #ff7755;
+  animation: blink .4s ease-in-out infinite;
+}
+
+.sb-score-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: stretch;
+  width: 100%;
+  max-width: 960px;
+  position: relative;
+  z-index: 1;
+  background: #0f0f0a;
+  border: 3px solid #0f0f0a;
+  border-radius: 3px;
+  box-shadow: 0 4px 0 rgba(0,0,0,.35), 0 12px 40px rgba(0,0,0,.25);
+  overflow: hidden;
+}
+
+.sb-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+}
+
+.home-team { border-right: 2px solid rgba(255,255,255,.08); }
+.away-team { border-left: 2px solid rgba(255,255,255,.08); }
+
+.sb-team-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(.9rem, 2.5vw, 1.6rem);
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1;
+  padding-bottom: .75rem;
+  margin-bottom: .5rem;
+  width: 100%;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.home-team .sb-team-name { color: #f0e8d0; }
+.away-team .sb-team-name { color: rgba(232,223,200,.45); }
+
+.sb-score {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(5rem, 16vw, 11rem);
+  font-weight: 900;
+  line-height: .85;
+  text-align: center;
+  letter-spacing: .02em;
+  display: block;
+  padding: .1rem 0 .5rem;
+}
+
+.home-team .sb-score { color: #f0e8d0; }
+.away-team .sb-score { color: rgba(232,223,200,.38); }
+
+.sport-basketball .home-team .sb-score { color: #ffcfb3; }
+.sport-tennis .home-team .sb-score { color: #c8f0cd; }
+.sport-icehockey .home-team .sb-score { color: #c8e4f5; }
+.sport-pingpong .home-team .sb-score { color: #f5c8c8; }
+
+.sb-team-stats {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(.55rem, 1.3vw, .75rem);
+  font-weight: 600;
+  color: rgba(232,223,200,.28);
+  text-align: center;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  min-height: 1em;
+  padding-top: .3rem;
+  border-top: 1px solid rgba(255,255,255,.06);
+  width: 100%;
+}
+
+.sb-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: 1rem .75rem;
+  background: rgba(255,255,255,.03);
+}
+
+.sb-vs {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(.7rem, 1.5vw, 1rem);
+  font-weight: 900;
+  letter-spacing: .3em;
+  color: rgba(232,223,200,.12);
+  writing-mode: vertical-rl;
+}
+
+.sb-extra-info {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(.55rem, 1.2vw, .7rem);
+  font-weight: 700;
+  color: rgba(232,223,200,.28);
+  text-align: center;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.sb-tennis-table {
+  margin-top: .75rem;
+  width: 100%;
+  max-width: 680px;
+  z-index: 1;
+  position: relative;
+}
+
+.sb-tennis-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #0f0f0a;
+  border: 3px solid #0f0f0a;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 4px 0 rgba(0,0,0,.35);
+}
+
+.sb-tennis-table th,
+.sb-tennis-table td {
+  padding: .45rem .7rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.sb-tennis-table th {
+  background: rgba(255,255,255,.05);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .58rem;
+  font-weight: 800;
+  letter-spacing: .15em;
+  color: rgba(232,223,200,.32);
+  text-transform: uppercase;
+}
+
+.sb-tennis-table td {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(.75rem, 1.8vw, .9rem);
+  color: rgba(232,223,200,.45);
+}
+
+.sb-tennis-table tbody tr:last-child td { border-bottom: none; }
+
+.tennis-player-name {
+  text-align: left !important;
+  font-family: 'Barlow Condensed', sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .06em;
+  color: #e8dfc8 !important;
+}
+
+.th-current,
+.td-current {
+  background: rgba(255,255,255,.07) !important;
+  color: #f0e8d0 !important;
+  font-weight: 700;
+}
+
+.sb-tennis-table .serve-indicator::before {
+  content: '● ';
+  color: #ffd740;
+}
+
+.sb-pp-sets {
+  display: flex;
+  gap: .4rem;
+  justify-content: center;
+  margin-top: .6rem;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.pp-set-badge {
+  background: #0f0f0a;
+  border: 2px solid rgba(255,255,255,.1);
+  border-radius: 2px;
+  padding: .2rem .6rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .7rem;
+  color: rgba(232,223,200,.3);
+}
+.pp-set-badge.won-p1 { border-color: #8a1a1a; color: #e8dfc8; }
+.pp-set-badge.won-p2 { border-color: rgba(200,150,150,.5); color: #e8dfc8; }
+.pp-set-badge.current-set {
+  border-color: rgba(255,255,255,.2);
+  color: #e8dfc8;
+  background: rgba(255,255,255,.05);
+}
+
+
+/* ---- control panel ---- */
+
+.control-panel {
+  flex: 0 0 auto;
+  background: #d4c8a8;
+  border-top: 3px solid #1a1a14;
+  padding: .5rem .75rem .75rem;
+  max-height: 52vh;
+  overflow-y: auto;
+  box-shadow: inset 0 4px 12px rgba(0,0,0,.15);
+}
+
+.control-panel.collapsed .cp-body { display: none; }
+
+.cp-toggle-row {
+  display: flex;
+  gap: .4rem;
+  justify-content: center;
+  margin-bottom: .5rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid #c8bb96;
+}
+
+.cp-btn-icon {
+  background: transparent;
+  border: 2px solid #4a4535;
+  color: #4a4535;
+  border-radius: 2px;
+  padding: .25rem .75rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .15s;
+}
+.cp-btn-icon:hover {
+  background: #0f0f0a;
+  border-color: #0f0f0a;
+  color: #f0e8d0;
+}
+
+.cp-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: .55rem;
+}
+
+.cp-section {
+  background: #e8dfc8;
+  border: 2px solid #3d3d2e;
+  border-radius: 2px;
+  padding: .65rem .75rem;
+  box-shadow: 0 2px 0 rgba(0,0,0,.12);
+}
+
+.cp-section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  color: #4a4535;
+  margin-bottom: .5rem;
+  padding-bottom: .35rem;
+  border-bottom: 1px solid #d4c8a8;
+}
+
+.cp-score-row {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: .4rem;
+  align-items: start;
+}
+
+.cp-divider-col {
+  background: #c8bb96;
+  align-self: stretch;
+  margin-top: 1.2rem;
+}
+
+.cp-team-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .3rem;
+}
+
+.cp-col-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #4a4535;
+}
+
+.cp-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  justify-content: center;
+}
+.cp-btn-row.centered { justify-content: center; }
+
+.cp-btn {
+  border-radius: 2px;
+  padding: .4rem .75rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  border: 2px solid transparent;
+  position: relative;
+  transition: transform .1s, box-shadow .1s;
+}
+.cp-btn.small { padding: .3rem .55rem; font-size: .72rem; }
+
+.cp-btn:active { transform: translateY(2px) !important; }
+
+.cp-btn.green {
+  background: #0f0f0a;
+  color: #9affd0;
+  border-color: #2e2e22;
+  box-shadow: 0 3px 0 #0a3018, 0 4px 8px rgba(0,0,0,.3);
+}
+.cp-btn.green:hover {
+  box-shadow: 0 4px 0 #0a3018, 0 5px 10px rgba(0,0,0,.3);
+  transform: translateY(-1px);
+}
+
+.cp-btn.yellow {
+  background: #0f0f0a;
+  color: #ffd966;
+  border-color: #2e2e22;
+  box-shadow: 0 3px 0 #3d3000, 0 4px 8px rgba(0,0,0,.3);
+}
+.cp-btn.yellow:hover { transform: translateY(-1px); }
+
+.cp-btn.gray {
+  background: #f0e8d0;
+  color: #1e1e14;
+  border-color: #3d3d2e;
+  box-shadow: 0 3px 0 #c8bb96, 0 3px 6px rgba(0,0,0,.15);
+}
+.cp-btn.gray:hover { background: #e8dfc8; transform: translateY(-1px); }
+
+.cp-btn.blue {
+  background: #0f0f0a;
+  color: #a0d4ff;
+  border-color: #2e2e22;
+  box-shadow: 0 3px 0 #0a1a30, 0 4px 8px rgba(0,0,0,.3);
+}
+.cp-btn.blue:hover { transform: translateY(-1px); }
+
+.cp-btn.orange {
+  background: #0f0f0a;
+  color: #ffaa77;
+  border-color: #2e2e22;
+  box-shadow: 0 3px 0 #3d1500, 0 4px 8px rgba(0,0,0,.3);
+}
+.cp-btn.orange:hover { transform: translateY(-1px); }
+
+.cp-btn.red {
+  background: #0f0f0a;
+  color: #ffaaaa;
+  border-color: #2e2e22;
+  box-shadow: 0 3px 0 #3d0a0a, 0 4px 8px rgba(0,0,0,.3);
+}
+.cp-btn.red:hover { transform: translateY(-1px); }
+
+
+/* winner screen */
+
+.winner-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,15,10,.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn .35s ease;
+  backdrop-filter: blur(6px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.winner-box {
+  background: #0f0f0a;
+  border: 4px solid #d4c8a8;
+  border-radius: 3px;
+  padding: 3rem 5rem;
+  text-align: center;
+  animation: popIn .45s cubic-bezier(.2,.8,.4,1);
+  position: relative;
+  box-shadow: 0 0 0 8px rgba(0,0,0,.5), 0 24px 60px rgba(0,0,0,.6);
+}
+
+.winner-box::before {
+  content: '';
+  position: absolute;
+  top: -4px; left: -4px; right: -4px;
+  height: 6px;
+  background: linear-gradient(90deg, transparent 5%, #d4a900 30%, #ffd700 50%, #d4a900 70%, transparent 95%);
+  border-radius: 3px 3px 0 0;
+}
+
+@keyframes popIn {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.winner-trophy {
+  font-size: 4.5rem;
+  line-height: 1;
+  margin-bottom: .75rem;
+  display: block;
+  animation: wobble .9s ease-in-out infinite alternate;
+}
+
+@keyframes wobble {
+  from { transform: scale(1) rotate(-3deg); }
+  to { transform: scale(1.08) rotate(3deg); filter: drop-shadow(0 0 20px rgba(255,200,0,.5)); }
+}
+
+.winner-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  color: #ffd700;
+}
+
+.winner-box .btn-start {
+  background: #f0e8d0;
+  color: #0f0f0a;
+  border-color: #d4c8a8;
+  box-shadow: 0 4px 0 rgba(0,0,0,.4);
+  margin-top: 0;
+}
+
+
+/* misc */
+
+@keyframes score-flash {
+  0% { transform: scale(1.2); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.score-flash { animation: score-flash .35s cubic-bezier(.2,.8,.4,1); }
+
+.serve-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffd740;
+  box-shadow: 0 0 6px #ffd740;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #d4c8a8; }
+::-webkit-scrollbar-thumb { background: #c8bb96; border-radius: 2px; }
+
+:fullscreen #screen-scoreboard,
+:-webkit-full-screen #screen-scoreboard { background: #ddd3b4; }
+
+@media (max-width: 600px) {
+  .sb-team { padding: .75rem; }
+  .sb-divider { padding: .75rem .4rem; }
+  .setup-panel { padding: 1.25rem 1.25rem 2rem; }
+  .cp-body { grid-template-columns: 1fr; }
+  .setup-row { flex-direction: column; align-items: flex-start; }
+  .setup-label { min-width: 0; }
+  .setup-input, .setup-select { width: 100%; }
+  .winner-box { padding: 2.5rem 2rem; }
+}
+
+</style>
 </head>
 <body>
 
@@ -370,6 +1389,967 @@
 
   </div><!-- end screen-scoreboard -->
 
-  <script src="app.js"></script>
+  <script>
+/* ============================================================
+   Sports Scoreboard – app.js
+   ============================================================ */
+
+'use strict';
+
+const MAX_HISTORY_SIZE = 50;
+
+/* ----------------------------------------------------------------
+   STATE
+---------------------------------------------------------------- */
+let state = {
+  sport: null,       // 'basketball' | 'tennis' | 'icehockey' | 'pingpong'
+  settings: {},      // customised settings from setup form
+  game: null,        // live game state (sport-specific)
+  timerInterval: null,
+  shotclockInterval: null,
+  history: [],       // stack of game snapshots for undo
+};
+
+/* ----------------------------------------------------------------
+   SPORT META
+---------------------------------------------------------------- */
+const SPORTS = {
+  basketball: { label: 'Basketball', icon: '🏀', theme: 'sport-basketball' },
+  tennis:     { label: 'Tennis',     icon: '🎾', theme: 'sport-tennis' },
+  icehockey:  { label: 'Ice Hockey', icon: '🏒', theme: 'sport-icehockey' },
+  pingpong:   { label: 'Ping Pong',  icon: '🏓', theme: 'sport-pingpong' },
+};
+
+/* ----------------------------------------------------------------
+   SCREEN MANAGEMENT
+---------------------------------------------------------------- */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ----------------------------------------------------------------
+   MENU
+---------------------------------------------------------------- */
+document.querySelectorAll('.sport-card').forEach(card => {
+  card.addEventListener('click', () => selectSport(card.dataset.sport));
+});
+
+function selectSport(sport) {
+  state.sport = sport;
+  buildSetupScreen(sport);
+  showScreen('screen-setup');
+}
+
+/* ----------------------------------------------------------------
+   SETUP SCREEN
+---------------------------------------------------------------- */
+function buildSetupScreen(sport) {
+  const meta = SPORTS[sport];
+
+  // Update badge & title
+  document.getElementById('setup-sport-badge').textContent = meta.icon;
+  document.getElementById('setup-title').textContent = meta.label + ' Setup';
+
+  // Apply sport theme class
+  const el = document.getElementById('screen-setup');
+  el.className = 'screen active sport-' + sport;
+
+  // Show/hide sections
+  const show = (...ids) => ids.forEach(id => document.getElementById(id).style.display = '');
+  const hide = (...ids) => ids.forEach(id => document.getElementById(id).style.display = 'none');
+
+  hide('setup-teams', 'setup-players', 'setup-basketball', 'setup-tennis', 'setup-icehockey', 'setup-pingpong');
+
+  if (sport === 'basketball') { show('setup-teams', 'setup-basketball'); }
+  if (sport === 'tennis')     { show('setup-players', 'setup-tennis'); }
+  if (sport === 'icehockey')  { show('setup-teams', 'setup-icehockey'); }
+  if (sport === 'pingpong')   { show('setup-players', 'setup-pingpong'); }
+}
+
+document.getElementById('btn-back-setup').addEventListener('click', () => {
+  showScreen('screen-menu');
+});
+
+document.getElementById('btn-start').addEventListener('click', startGame);
+
+function getSettings() {
+  const sport = state.sport;
+  if (sport === 'basketball') {
+    return {
+      homeTeam: document.getElementById('home-name').value.trim() || 'HOME',
+      awayTeam: document.getElementById('away-name').value.trim() || 'AWAY',
+      periodLen: parseInt(document.getElementById('bball-period-len').value),
+      shotClock: parseInt(document.getElementById('bball-shotclock').value),
+      foulLimit: parseInt(document.getElementById('bball-fouls').value),
+    };
+  }
+  if (sport === 'tennis') {
+    return {
+      player1: document.getElementById('player1-name').value.trim() || 'Player 1',
+      player2: document.getElementById('player2-name').value.trim() || 'Player 2',
+      bestOf:  parseInt(document.getElementById('tennis-bestof').value),
+      finalSetTiebreak: parseInt(document.getElementById('tennis-tiebreak').value),
+    };
+  }
+  if (sport === 'icehockey') {
+    return {
+      homeTeam:  document.getElementById('home-name').value.trim() || 'HOME',
+      awayTeam:  document.getElementById('away-name').value.trim() || 'AWAY',
+      periodLen: parseInt(document.getElementById('hockey-period-len').value),
+      otLen:     parseInt(document.getElementById('hockey-ot-len').value),
+    };
+  }
+  if (sport === 'pingpong') {
+    return {
+      player1: document.getElementById('player1-name').value.trim() || 'Player 1',
+      player2: document.getElementById('player2-name').value.trim() || 'Player 2',
+      pointsToWin: parseInt(document.getElementById('pp-points').value),
+      bestOf:  parseInt(document.getElementById('pp-bestof').value),
+    };
+  }
+}
+
+/* ----------------------------------------------------------------
+   START GAME
+---------------------------------------------------------------- */
+function startGame() {
+  stopAllTimers();
+  state.settings = getSettings();
+  state.history = [];
+
+  switch (state.sport) {
+    case 'basketball': state.game = createBasketballGame(); break;
+    case 'tennis':     state.game = createTennisGame();     break;
+    case 'icehockey':  state.game = createIceHockeyGame();  break;
+    case 'pingpong':   state.game = createPingPongGame();   break;
+  }
+
+  buildScoreboardUI();
+  renderScoreboard();
+  showScreen('screen-scoreboard');
+}
+
+/* ----------------------------------------------------------------
+   INITIAL GAME STATE FACTORIES
+---------------------------------------------------------------- */
+function createBasketballGame() {
+  const s = state.settings;
+  return {
+    homeScore: 0, awayScore: 0,
+    homeFouls: 0, awayFouls: 0,
+    homeTimeoutsFull: 7, awayTimeoutsFull: 7,
+    homeShortTimeouts: 2,   awayShortTimeouts: 2,
+    period: 1, maxPeriod: 4,
+    clockSecs: s.periodLen * 60,
+    shotClockSecs: s.shotClock || 0,
+    running: false,
+    matchOver: false,
+  };
+}
+
+function createTennisGame() {
+  const s = state.settings;
+  const setsNeeded = Math.ceil(s.bestOf / 2);
+  return {
+    setsNeeded,
+    sets: [],          // array of [p1games, p2games] for completed sets
+    currentSet: 0,     // index of current set (0-based)
+    p1Games: 0, p2Games: 0,   // games in current set
+    p1Points: 0, p2Points: 0, // current game raw points (0-4 where 3=40, 4=deuce/adv)
+    deuce: false,      // currently at deuce
+    advServer: null,   // null | 'p1' | 'p2' at advantage
+    tiebreak: false,   // currently in tiebreak
+    serving: 'p1',     // who is serving
+    p1Sets: 0, p2Sets: 0,     // sets won
+    matchOver: false,
+    winner: null,
+  };
+}
+
+function createIceHockeyGame() {
+  const s = state.settings;
+  return {
+    homeScore: 0, awayScore: 0,
+    homeShotsOnGoal: 0, awayShotsOnGoal: 0,
+    homePenalties: [], awayPenalties: [], // {mins, secsLeft}
+    period: 1, maxPeriod: 3,
+    clockSecs: s.periodLen * 60,
+    running: false,
+    matchOver: false,
+    ot: false,
+  };
+}
+
+function createPingPongGame() {
+  const s = state.settings;
+  const gamesNeeded = Math.ceil(s.bestOf / 2);
+  return {
+    gamesNeeded,
+    p1GamesWon: 0, p2GamesWon: 0,
+    p1Points: 0, p2Points: 0,
+    serving: 'p1',         // who serves currently
+    serveCount: 0,         // how many points served in current serve stint
+    gameHistory: [],       // [{p1,p2}] per completed game
+    matchOver: false,
+    winner: null,
+  };
+}
+
+/* ----------------------------------------------------------------
+   BUILD SCOREBOARD UI (wire up controls, show/hide sport sections)
+---------------------------------------------------------------- */
+function buildScoreboardUI() {
+  const sport = state.sport;
+  const s = state.settings;
+  const meta = SPORTS[sport];
+
+  // Apply theme
+  const disp = document.getElementById('sb-display');
+  disp.className = 'sb-display sport-' + sport;
+
+  document.getElementById('sb-sport-label').textContent = meta.icon + ' ' + meta.label;
+
+  // Team / player names
+  const n1 = sport === 'basketball' || sport === 'icehockey' ? s.homeTeam : s.player1;
+  const n2 = sport === 'basketball' || sport === 'icehockey' ? s.awayTeam : s.player2;
+  document.getElementById('sb-home-name').textContent = n1;
+  document.getElementById('sb-away-name').textContent = n2;
+  document.getElementById('cp-home-label').textContent = n1;
+  document.getElementById('cp-away-label').textContent = n2;
+  document.getElementById('tennis-p1-name').textContent = n1;
+  document.getElementById('tennis-p2-name').textContent = n2;
+
+  // Show/hide clock, shotclock
+  const wrap = document.getElementById('sb-shotclock-wrap');
+  wrap.style.display = (sport === 'basketball' && s.shotClock > 0) ? 'flex' : 'none';
+
+  // Shot clock reset button – only shown for basketball with shot clock enabled
+  const scRow = document.getElementById('cp-shotclock-row');
+  scRow.style.display = (sport === 'basketball' && s.shotClock > 0) ? '' : 'none';
+
+  // Timer section visibility
+  const timerSec = document.getElementById('cp-timer-section');
+  timerSec.style.display = (sport === 'basketball' || sport === 'icehockey') ? '' : 'none';
+
+  // Period section
+  const periodSec = document.getElementById('cp-period-section');
+  const periodTitle = document.getElementById('cp-period-title');
+  if (sport === 'basketball') { periodTitle.textContent = 'Quarter'; }
+  else if (sport === 'icehockey') { periodTitle.textContent = 'Period'; }
+  else { periodSec.style.display = 'none'; }
+
+  // Tennis / PP table
+  document.getElementById('sb-tennis-table').style.display = sport === 'tennis' ? '' : 'none';
+  document.getElementById('sb-pp-sets').style.display     = sport === 'pingpong' ? '' : 'none';
+
+  // Sport-specific extras
+  document.getElementById('cp-bball-extras').style.display   = sport === 'basketball' ? '' : 'none';
+  document.getElementById('cp-hockey-extras').style.display  = sport === 'icehockey'  ? '' : 'none';
+
+  // Score buttons
+  buildScoreButtons();
+
+  // Tennis sets columns
+  if (sport === 'tennis') {
+    const bestOf = s.bestOf;
+    for (let i = 4; i <= 5; i++) {
+      const display = bestOf >= i ? '' : 'none';
+      document.getElementById('th-set' + i).style.display = display;
+      document.getElementById('t-p1-s' + i).style.display = display;
+      document.getElementById('t-p2-s' + i).style.display = display;
+    }
+  }
+}
+
+function buildScoreButtons() {
+  const sport = state.sport;
+  const homeRow = document.getElementById('cp-home-score-btns');
+  const awayRow = document.getElementById('cp-away-score-btns');
+  homeRow.innerHTML = '';
+  awayRow.innerHTML = '';
+
+  if (sport === 'basketball') {
+    [1, 2, 3].forEach(pts => {
+      const hb = makeBtn('+' + pts, 'green', () => addBasketballPoints('home', pts));
+      const ab = makeBtn('+' + pts, 'green', () => addBasketballPoints('away', pts));
+      homeRow.appendChild(hb);
+      awayRow.appendChild(ab);
+    });
+  } else if (sport === 'icehockey') {
+    homeRow.appendChild(makeBtn('+ Goal', 'green', () => addGoal('home')));
+    awayRow.appendChild(makeBtn('+ Goal', 'green', () => addGoal('away')));
+  } else if (sport === 'tennis') {
+    homeRow.appendChild(makeBtn('+ Point', 'green', () => addTennisPoint('p1')));
+    awayRow.appendChild(makeBtn('+ Point', 'green', () => addTennisPoint('p2')));
+  } else if (sport === 'pingpong') {
+    homeRow.appendChild(makeBtn('+ Point', 'green', () => addPingPongPoint('p1')));
+    awayRow.appendChild(makeBtn('+ Point', 'green', () => addPingPongPoint('p2')));
+  }
+}
+
+function makeBtn(label, cls, handler) {
+  const b = document.createElement('button');
+  b.className = 'cp-btn ' + cls;
+  b.textContent = label;
+  b.addEventListener('click', handler);
+  return b;
+}
+
+/* ----------------------------------------------------------------
+   RENDER SCOREBOARD
+---------------------------------------------------------------- */
+function renderScoreboard() {
+  switch (state.sport) {
+    case 'basketball': renderBasketball(); break;
+    case 'tennis':     renderTennis();     break;
+    case 'icehockey':  renderIceHockey();  break;
+    case 'pingpong':   renderPingPong();   break;
+  }
+}
+
+/* ---- Basketball ---- */
+function renderBasketball() {
+  const g = state.game;
+  const s = state.settings;
+  setEl('sb-home-score', g.homeScore);
+  setEl('sb-away-score', g.awayScore);
+
+  // Period label
+  let pLabel = 'Q' + g.period;
+  if (g.period > 4) pLabel = 'OT' + (g.period - 4);
+  setEl('sb-period-label', pLabel);
+
+  // Clock
+  const clockEl = document.getElementById('sb-clock');
+  clockEl.textContent = fmtTime(g.clockSecs);
+  clockEl.className = 'sb-clock' + clockClass(g.clockSecs, s.periodLen * 60);
+
+  // Shot clock
+  if (s.shotClock > 0) {
+    const scEl = document.getElementById('sb-shotclock');
+    scEl.textContent = g.shotClockSecs;
+    scEl.className = 'sb-shotclock' + (g.shotClockSecs <= 5 ? ' sc-critical' : g.shotClockSecs <= 10 ? ' sc-warning' : '');
+  }
+
+  // Stats
+  setEl('sb-home-stats', `Fouls: ${g.homeFouls}  |  TOs: ${g.homeTimeoutsFull} full · ${g.homeShortTimeouts} short`);
+  setEl('sb-away-stats', `Fouls: ${g.awayFouls}  |  TOs: ${g.awayTimeoutsFull} full · ${g.awayShortTimeouts} short`);
+
+  setEl('sb-extra-info', '');
+}
+
+/* ---- Tennis ---- */
+function renderTennis() {
+  const g = state.game;
+  const s = state.settings;
+
+  // "Sets" as main score display
+  setEl('sb-home-score', g.p1Sets);
+  setEl('sb-away-score', g.p2Sets);
+
+  setEl('sb-period-label', 'Set ' + (g.currentSet + 1));
+  document.getElementById('sb-clock').textContent = '';
+  document.getElementById('sb-clock').className = 'sb-clock';
+
+  // Serve indicator in names
+  const p1Name = state.settings.player1 + (g.serving === 'p1' ? ' ●' : '');
+  const p2Name = state.settings.player2 + (g.serving === 'p2' ? ' ●' : '');
+  setEl('sb-home-name', p1Name);
+  setEl('sb-away-name', p2Name);
+
+  // Points display
+  const pointLabels = ['0', '15', '30', '40'];
+  let p1Pts, p2Pts;
+  if (g.tiebreak) {
+    p1Pts = g.p1Points;
+    p2Pts = g.p2Points;
+  } else if (g.deuce) {
+    if (g.advServer === 'p1')      { p1Pts = 'Adv'; p2Pts = '40'; }
+    else if (g.advServer === 'p2') { p1Pts = '40'; p2Pts = 'Adv'; }
+    else                            { p1Pts = 'Deuce'; p2Pts = 'Deuce'; }
+  } else {
+    p1Pts = pointLabels[g.p1Points] || g.p1Points;
+    p2Pts = pointLabels[g.p2Points] || g.p2Points;
+  }
+
+  // Populate table
+  setEl('t-p1-games', g.p1Games);
+  setEl('t-p2-games', g.p2Games);
+  setEl('t-p1-points', p1Pts);
+  setEl('t-p2-points', p2Pts);
+
+  // Completed sets
+  for (let i = 0; i < 5; i++) {
+    const sd = g.sets[i];
+    setEl('t-p1-s' + (i + 1), sd ? sd[0] : '-');
+    setEl('t-p2-s' + (i + 1), sd ? sd[1] : '-');
+  }
+
+  setEl('sb-extra-info', g.tiebreak ? 'Tiebreak' : '');
+  setEl('sb-home-stats', '');
+  setEl('sb-away-stats', '');
+}
+
+/* ---- Ice Hockey ---- */
+function renderIceHockey() {
+  const g = state.game;
+  const s = state.settings;
+  setEl('sb-home-score', g.homeScore);
+  setEl('sb-away-score', g.awayScore);
+
+  let pLabel = (g.ot ? 'OT' : 'P' + g.period);
+  setEl('sb-period-label', pLabel);
+
+  const clockEl = document.getElementById('sb-clock');
+  clockEl.textContent = fmtTime(g.clockSecs);
+  clockEl.className = 'sb-clock' + clockClass(g.clockSecs, (g.ot ? s.otLen : s.periodLen) * 60);
+
+  // Penalties
+  const homePen = g.homePenalties.map(p => fmtTime(p.secsLeft)).join(' | ') || 'None';
+  const awayPen = g.awayPenalties.map(p => fmtTime(p.secsLeft)).join(' | ') || 'None';
+  setEl('sb-home-stats', `SOG: ${g.homeShotsOnGoal} | Pen: ${homePen}`);
+  setEl('sb-away-stats', `SOG: ${g.awayShotsOnGoal} | Pen: ${awayPen}`);
+
+  setEl('sb-extra-info', '');
+}
+
+/* ---- Ping Pong ---- */
+function renderPingPong() {
+  const g = state.game;
+  const s = state.settings;
+
+  // Current points as main display
+  setEl('sb-home-score', g.p1Points);
+  setEl('sb-away-score', g.p2Points);
+
+  // Games won as period label
+  setEl('sb-period-label', `G${g.p1GamesWon + g.p2GamesWon + 1}`);
+  document.getElementById('sb-clock').textContent = '';
+  document.getElementById('sb-clock').className = 'sb-clock';
+
+  // Serve indicator in names
+  const p1Name = state.settings.player1 + (g.serving === 'p1' ? ' ●' : '');
+  const p2Name = state.settings.player2 + (g.serving === 'p2' ? ' ●' : '');
+  setEl('sb-home-name', p1Name);
+  setEl('sb-away-name', p2Name);
+
+  // Game history badges
+  const container = document.getElementById('sb-pp-sets');
+  container.innerHTML = '';
+  g.gameHistory.forEach((game, i) => {
+    const badge = document.createElement('div');
+    badge.className = 'pp-set-badge' + (game.winner === 'p1' ? ' won-p1' : ' won-p2');
+    badge.textContent = `G${i + 1}: ${game.p1}-${game.p2}`;
+    container.appendChild(badge);
+  });
+  // Current game badge
+  const cur = document.createElement('div');
+  cur.className = 'pp-set-badge current-set';
+  cur.textContent = `G${g.gameHistory.length + 1} (current)`;
+  container.appendChild(cur);
+
+  setEl('sb-extra-info', `Best of ${s.bestOf} | First to ${s.pointsToWin}`);
+  setEl('sb-home-stats', `Games: ${g.p1GamesWon}`);
+  setEl('sb-away-stats', `Games: ${g.p2GamesWon}`);
+}
+
+/* ----------------------------------------------------------------
+   BASKETBALL LOGIC
+---------------------------------------------------------------- */
+function addBasketballPoints(team, pts) {
+  saveHistory();
+  if (team === 'home') state.game.homeScore += pts;
+  else                 state.game.awayScore += pts;
+  flashScore(team === 'home' ? 'sb-home-score' : 'sb-away-score');
+  renderScoreboard();
+}
+
+function addFoul(team) {
+  saveHistory();
+  if (team === 'home') state.game.homeFouls++;
+  else                 state.game.awayFouls++;
+  renderScoreboard();
+}
+
+function addTimeout(team, type) {
+  saveHistory();
+  const g = state.game;
+  if (type === 'full') {
+    if (team === 'home' && g.homeTimeoutsFull > 0) g.homeTimeoutsFull--;
+    else if (team === 'away' && g.awayTimeoutsFull > 0) g.awayTimeoutsFull--;
+  } else {
+    if (team === 'home' && g.homeShortTimeouts > 0) g.homeShortTimeouts--;
+    else if (team === 'away' && g.awayShortTimeouts > 0) g.awayShortTimeouts--;
+  }
+  renderScoreboard();
+}
+
+function nextBasketballPeriod() {
+  saveHistory();
+  const g = state.game;
+  stopAllTimers();
+  g.running = false;
+  g.period++;
+  g.clockSecs = state.settings.periodLen * 60;
+  if (g.shotClockSecs !== undefined) g.shotClockSecs = state.settings.shotClock;
+  // Reset fouls per quarter (team fouls) - only count quarter fouls
+  g.homeFouls = 0;
+  g.awayFouls = 0;
+  renderScoreboard();
+}
+
+/* ----------------------------------------------------------------
+   TENNIS LOGIC
+---------------------------------------------------------------- */
+function addTennisPoint(player) {
+  saveHistory();
+  const g = state.game;
+  if (g.matchOver) return;
+
+  if (g.tiebreak) {
+    // Tiebreak scoring
+    if (player === 'p1') g.p1Points++;
+    else                 g.p2Points++;
+
+    // Swap serve after first point, then every 2 points
+    g.serveCount = (g.serveCount || 0) + 1;
+    if (g.serveCount === 1 || (g.serveCount > 1 && (g.serveCount - 1) % 2 === 0)) {
+      g.serving = g.serving === 'p1' ? 'p2' : 'p1';
+    }
+
+    const tieTarget = state.settings.finalSetTiebreak || 7;
+    const diff = Math.abs(g.p1Points - g.p2Points);
+    const maxPts = Math.max(g.p1Points, g.p2Points);
+    if (maxPts >= tieTarget && diff >= 2) {
+      const winner = g.p1Points > g.p2Points ? 'p1' : 'p2';
+      awardGame(winner);
+    }
+  } else {
+    // Normal point scoring
+    if (g.deuce) {
+      if (g.advServer === null) {
+        // At deuce, someone takes advantage
+        g.advServer = player;
+      } else if (g.advServer === player) {
+        // Win game
+        awardGame(player);
+        return;
+      } else {
+        // Back to deuce
+        g.advServer = null;
+      }
+    } else {
+      if (player === 'p1') g.p1Points++;
+      else                 g.p2Points++;
+
+      // Check for deuce (both at 3 = "40")
+      if (g.p1Points === 3 && g.p2Points === 3) {
+        g.deuce = true;
+        g.advServer = null;
+      } else if (g.p1Points >= 4) {
+        awardGame('p1');
+        return;
+      } else if (g.p2Points >= 4) {
+        awardGame('p2');
+        return;
+      }
+    }
+  }
+
+  flashScore(player === 'p1' ? 'sb-home-score' : 'sb-away-score');
+  renderScoreboard();
+}
+
+function awardGame(winner) {
+  const g = state.game;
+  if (winner === 'p1') g.p1Games++;
+  else                 g.p2Games++;
+
+  // Reset points
+  g.p1Points = 0; g.p2Points = 0;
+  g.deuce = false; g.advServer = null;
+  g.tiebreak = false;
+  g.serveCount = 0;
+  // Serve alternates after each game
+  g.serving = g.serving === 'p1' ? 'p2' : 'p1';
+
+  // Check set win
+  checkSetWon();
+  flashScore(winner === 'p1' ? 'sb-home-score' : 'sb-away-score');
+  renderScoreboard();
+}
+
+function checkSetWon() {
+  const g = state.game;
+  const p1 = g.p1Games, p2 = g.p2Games;
+
+  // Tiebreak condition
+  if (p1 === 6 && p2 === 6) {
+    const isDecidingSet = (g.p1Sets + g.p2Sets) === (state.settings.bestOf - 1);
+    // Enter tiebreak if not advantage set format (finalSetTiebreak != 0)
+    const allowTiebreak = !(isDecidingSet && state.settings.finalSetTiebreak === 0);
+    if (allowTiebreak) {
+      g.tiebreak = true;
+      g.p1Points = 0; g.p2Points = 0;
+      g.serveCount = 0;
+      return;
+    }
+  }
+
+  // Normal win: 6 games with 2 clear, or 7 after 6-5
+  const diff = Math.abs(p1 - p2);
+  const maxG = Math.max(p1, p2);
+  let setWinner = null;
+  if (maxG >= 6 && diff >= 2) {
+    setWinner = p1 > p2 ? 'p1' : 'p2';
+  } else if (maxG === 7) {
+    setWinner = p1 > p2 ? 'p1' : 'p2';
+  }
+
+  if (setWinner) {
+    g.sets.push([p1, p2]);
+    g.p1Games = 0; g.p2Games = 0;
+    g.currentSet++;
+    if (setWinner === 'p1') g.p1Sets++;
+    else                    g.p2Sets++;
+
+    if (g.p1Sets >= g.setsNeeded || g.p2Sets >= g.setsNeeded) {
+      g.matchOver = true;
+      g.winner = setWinner;
+      showWinner(state.settings[setWinner === 'p1' ? 'player1' : 'player2']);
+    }
+  }
+}
+
+/* ----------------------------------------------------------------
+   ICE HOCKEY LOGIC
+---------------------------------------------------------------- */
+function addGoal(team) {
+  saveHistory();
+  if (team === 'home') state.game.homeScore++;
+  else                 state.game.awayScore++;
+  flashScore(team === 'home' ? 'sb-home-score' : 'sb-away-score');
+  renderScoreboard();
+}
+
+function addPenalty(team, minutes) {
+  saveHistory();
+  const g = state.game;
+  const pen = { mins: minutes, secsLeft: minutes * 60 };
+  if (team === 'home') g.homePenalties.push(pen);
+  else                 g.awayPenalties.push(pen);
+  renderScoreboard();
+}
+
+function addShot(team) {
+  saveHistory();
+  if (team === 'home') state.game.homeShotsOnGoal++;
+  else                 state.game.awayShotsOnGoal++;
+  renderScoreboard();
+}
+
+function nextIceHockeyPeriod() {
+  saveHistory();
+  const g = state.game;
+  const s = state.settings;
+  stopAllTimers();
+  g.running = false;
+
+  if (g.period >= 3 && g.homeScore === g.awayScore) {
+    // Overtime
+    g.ot = true;
+    g.period++;
+    g.clockSecs = s.otLen * 60;
+  } else if (g.period < 3) {
+    g.period++;
+    g.clockSecs = s.periodLen * 60;
+  } else {
+    // After OT (shootout situation, just advance period)
+    g.period++;
+    g.clockSecs = s.otLen * 60;
+  }
+  renderScoreboard();
+}
+
+/* ----------------------------------------------------------------
+   PING PONG LOGIC
+---------------------------------------------------------------- */
+function addPingPongPoint(player) {
+  saveHistory();
+  const g = state.game;
+  if (g.matchOver) return;
+
+  if (player === 'p1') g.p1Points++;
+  else                 g.p2Points++;
+
+  // Advance serve counter
+  g.serveCount++;
+  const ptw = state.settings.pointsToWin;
+  const isDeuce = g.p1Points >= (ptw - 1) && g.p2Points >= (ptw - 1);
+  const serveChangeEvery = isDeuce ? 1 : 2;
+
+  if (g.serveCount >= serveChangeEvery) {
+    g.serving = g.serving === 'p1' ? 'p2' : 'p1';
+    g.serveCount = 0;
+  }
+
+  // Check game won
+  const diff = Math.abs(g.p1Points - g.p2Points);
+  const maxPts = Math.max(g.p1Points, g.p2Points);
+  if (maxPts >= ptw && diff >= 2) {
+    const gameWinner = g.p1Points > g.p2Points ? 'p1' : 'p2';
+    awardPPGame(gameWinner);
+    return;
+  }
+
+  flashScore(player === 'p1' ? 'sb-home-score' : 'sb-away-score');
+  renderScoreboard();
+}
+
+function awardPPGame(winner) {
+  const g = state.game;
+  g.gameHistory.push({ p1: g.p1Points, p2: g.p2Points, winner });
+
+  if (winner === 'p1') g.p1GamesWon++;
+  else                 g.p2GamesWon++;
+
+  g.p1Points = 0; g.p2Points = 0;
+  g.serveCount = 0;
+
+  // Serve switches at the start of each game (loser of last game serves, or alternate)
+  // Standard rule: server of last game becomes receiver
+  g.serving = g.serving === 'p1' ? 'p2' : 'p1';
+
+  if (g.p1GamesWon >= g.gamesNeeded || g.p2GamesWon >= g.gamesNeeded) {
+    g.matchOver = true;
+    g.winner = winner;
+    const name = state.settings[winner === 'p1' ? 'player1' : 'player2'];
+    showWinner(name);
+  }
+
+  flashScore(winner === 'p1' ? 'sb-home-score' : 'sb-away-score');
+  renderScoreboard();
+}
+
+/* ----------------------------------------------------------------
+   TIMER
+---------------------------------------------------------------- */
+function startTimer() {
+  if (state.game.running) return;
+  state.game.running = true;
+  updateClockRunning(true);
+
+  state.timerInterval = setInterval(() => {
+    if (state.game.clockSecs > 0) {
+      state.game.clockSecs--;
+      if (state.sport === 'basketball' && state.settings.shotClock > 0) {
+        if (state.game.shotClockSecs > 0) state.game.shotClockSecs--;
+      }
+      // Tick down penalties (ice hockey)
+      if (state.sport === 'icehockey') {
+        tickPenalties();
+      }
+      renderScoreboard();
+    } else {
+      // Time's up
+      pauseTimer();
+      renderScoreboard();
+    }
+  }, 1000);
+}
+
+function tickPenalties() {
+  const g = state.game;
+  ['homePenalties', 'awayPenalties'].forEach(key => {
+    g[key] = g[key]
+      .map(p => ({ ...p, secsLeft: p.secsLeft - 1 }))
+      .filter(p => p.secsLeft > 0);
+  });
+}
+
+function pauseTimer() {
+  clearInterval(state.timerInterval);
+  state.timerInterval = null;
+  if (state.game) state.game.running = false;
+  updateClockRunning(false);
+}
+
+function resetTimer() {
+  pauseTimer();
+  const g = state.game;
+  const s = state.settings;
+  if (state.sport === 'basketball') {
+    g.clockSecs = s.periodLen * 60;
+    if (s.shotClock > 0) g.shotClockSecs = s.shotClock;
+  } else if (state.sport === 'icehockey') {
+    g.clockSecs = (g.ot ? s.otLen : s.periodLen) * 60;
+  }
+  renderScoreboard();
+}
+
+function resetShotClock() {
+  if (state.sport === 'basketball') {
+    state.game.shotClockSecs = state.settings.shotClock;
+    renderScoreboard();
+  }
+}
+
+function stopAllTimers() {
+  clearInterval(state.timerInterval);
+  clearInterval(state.shotclockInterval);
+  state.timerInterval = null;
+  state.shotclockInterval = null;
+}
+
+function updateClockRunning(running) {
+  const clockEl = document.getElementById('sb-clock');
+  if (running) clockEl.classList.add('running');
+  else         clockEl.classList.remove('running');
+}
+
+/* ----------------------------------------------------------------
+   UNDO / RESET
+---------------------------------------------------------------- */
+function saveHistory() {
+  state.history.push(JSON.stringify(state.game));
+  if (state.history.length > MAX_HISTORY_SIZE) state.history.shift();
+}
+
+function undo() {
+  if (state.history.length === 0) return;
+  const prev = state.history.pop();
+  state.game = JSON.parse(prev);
+  document.getElementById('winner-overlay').style.display = 'none';
+  renderScoreboard();
+}
+
+function resetGame() {
+  stopAllTimers();
+  state.history = [];
+  document.getElementById('winner-overlay').style.display = 'none';
+  switch (state.sport) {
+    case 'basketball': state.game = createBasketballGame(); break;
+    case 'tennis':     state.game = createTennisGame();     break;
+    case 'icehockey':  state.game = createIceHockeyGame();  break;
+    case 'pingpong':   state.game = createPingPongGame();   break;
+  }
+  renderScoreboard();
+}
+
+/* ----------------------------------------------------------------
+   WINNER
+---------------------------------------------------------------- */
+function showWinner(name) {
+  const overlay = document.getElementById('winner-overlay');
+  setEl('winner-label', name + ' Wins!');
+  overlay.style.display = 'flex';
+}
+
+/* ----------------------------------------------------------------
+   CONTROL PANEL EVENTS
+---------------------------------------------------------------- */
+// Timer
+document.getElementById('btn-timer-start').addEventListener('click', startTimer);
+document.getElementById('btn-timer-pause').addEventListener('click', pauseTimer);
+document.getElementById('btn-timer-reset').addEventListener('click', resetTimer);
+document.getElementById('btn-sc-reset').addEventListener('click', resetShotClock);
+
+// Period / Set advance
+document.getElementById('btn-next-period').addEventListener('click', () => {
+  if (state.sport === 'basketball') nextBasketballPeriod();
+  else if (state.sport === 'icehockey') nextIceHockeyPeriod();
+});
+
+// Basketball extras
+document.getElementById('btn-home-foul').addEventListener('click',         () => addFoul('home'));
+document.getElementById('btn-away-foul').addEventListener('click',         () => addFoul('away'));
+document.getElementById('btn-home-timeout-full').addEventListener('click', () => addTimeout('home', 'full'));
+document.getElementById('btn-away-timeout-full').addEventListener('click', () => addTimeout('away', 'full'));
+document.getElementById('btn-home-timeout-20').addEventListener('click',   () => addTimeout('home', '20'));
+document.getElementById('btn-away-timeout-20').addEventListener('click',   () => addTimeout('away', '20'));
+
+// Ice Hockey extras
+document.getElementById('btn-home-minor').addEventListener('click', () => addPenalty('home', 2));
+document.getElementById('btn-away-minor').addEventListener('click', () => addPenalty('away', 2));
+document.getElementById('btn-home-major').addEventListener('click', () => addPenalty('home', 5));
+document.getElementById('btn-away-major').addEventListener('click', () => addPenalty('away', 5));
+document.getElementById('btn-home-shot').addEventListener('click',  () => addShot('home'));
+document.getElementById('btn-away-shot').addEventListener('click',  () => addShot('away'));
+
+// Undo & Reset
+document.getElementById('btn-undo').addEventListener('click', undo);
+document.getElementById('btn-reset-game').addEventListener('click', resetGame);
+
+// Toggle controls
+document.getElementById('btn-toggle-controls').addEventListener('click', () => {
+  document.getElementById('control-panel').classList.toggle('collapsed');
+});
+
+// Fullscreen
+document.getElementById('btn-fullscreen').addEventListener('click', toggleFullscreen);
+
+// Back / End game
+document.getElementById('btn-back-game').addEventListener('click', () => {
+  stopAllTimers();
+  showScreen('screen-menu');
+});
+
+// New game from winner overlay
+document.getElementById('btn-new-game').addEventListener('click', () => {
+  document.getElementById('winner-overlay').style.display = 'none';
+  showScreen('screen-setup');
+});
+
+/* ----------------------------------------------------------------
+   FULLSCREEN
+---------------------------------------------------------------- */
+function toggleFullscreen() {
+  const el = document.documentElement;
+  try {
+    if (!document.fullscreenElement) {
+      const requestFn = el.requestFullscreen || el.webkitRequestFullscreen ||
+                        el.mozRequestFullScreen || el.msRequestFullscreen;
+      if (requestFn) requestFn.call(el);
+    } else {
+      const exitFn = document.exitFullscreen || document.webkitExitFullscreen ||
+                     document.mozCancelFullScreen || document.msExitFullscreen;
+      if (exitFn) exitFn.call(document);
+    }
+  } catch (e) {
+    // Fullscreen not available in this environment
+  }
+}
+
+/* ----------------------------------------------------------------
+   HELPERS
+---------------------------------------------------------------- */
+function fmtTime(secs) {
+  if (isNaN(secs) || secs < 0) return '0:00';
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function clockClass(secs, total) {
+  if (secs <= 30) return ' critical';
+  if (secs <= total * 0.15) return ' warning';
+  return '';
+}
+
+function setEl(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = String(val);
+}
+
+function flashScore(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('score-flash');
+  void el.offsetWidth; // reflow to restart animation
+  el.classList.add('score-flash');
+}
+
+</script>
 </body>
 </html>
